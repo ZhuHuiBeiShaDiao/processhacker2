@@ -21,9 +21,11 @@
  */
 
 #include <phapp.h>
-#include <procprv.h>
-#include <memprv.h>
+
 #include <windowsx.h>
+
+#include <memprv.h>
+#include <procprv.h>
 
 typedef struct _MEMORY_PROTECT_CONTEXT
 {
@@ -70,6 +72,8 @@ static INT_PTR CALLBACK PhpMemoryProtectDlgProc(
     case WM_INITDIALOG:
         {
             SetProp(hwndDlg, PhMakeContextAtom(), (HANDLE)lParam);
+
+            PhCenterWindow(hwndDlg, GetParent(hwndDlg));
 
             SetDlgItemText(hwndDlg, IDC_INTRO,
                 L"Possible values:\r\n"

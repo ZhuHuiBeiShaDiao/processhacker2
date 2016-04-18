@@ -21,11 +21,14 @@
  */
 
 #include <phapp.h>
-#include <thrdprv.h>
+
 #include <kphuser.h>
 #include <symprv.h>
-#include <settings.h>
+
+#include <actions.h>
 #include <phplug.h>
+#include <settings.h>
+#include <thrdprv.h>
 
 #define WM_PH_COMPLETED (WM_APP + 301)
 #define WM_PH_STATUS_UPDATE (WM_APP + 302)
@@ -96,7 +99,7 @@ VOID PhShowThreadStackDialog(
     // but KProcessHacker is not loaded, show an error message.
     if (ProcessId == SYSTEM_PROCESS_ID && !KphIsConnected())
     {
-        PhShowError(ParentWindowHandle, KPH_ERROR_MESSAGE);
+        PhShowError(ParentWindowHandle, PH_KPH_ERROR_MESSAGE);
         return;
     }
 

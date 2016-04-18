@@ -21,15 +21,17 @@
  */
 
 #include <phapp.h>
+
+#include <symprv.h>
+
+#include <hndlprv.h>
+#include <memprv.h>
+#include <modprv.h>
+#include <netprv.h>
 #include <phappres.h>
 #include <procprv.h>
 #include <srvprv.h>
-#include <netprv.h>
-#include <modprv.h>
 #include <thrdprv.h>
-#include <hndlprv.h>
-#include <memprv.h>
-#include <symprv.h>
 
 static INT_PTR CALLBACK PhpAboutDlgProc(
     _In_ HWND hwndDlg,
@@ -43,6 +45,8 @@ static INT_PTR CALLBACK PhpAboutDlgProc(
     case WM_INITDIALOG:
         {
             PPH_STRING appName;
+
+            PhCenterWindow(hwndDlg, GetParent(hwndDlg));
 
 #if (PHAPP_VERSION_REVISION != 0)
             appName = PhFormatString(
@@ -77,6 +81,8 @@ static INT_PTR CALLBACK PhpAboutDlgProc(
                 L"    <a href=\"http://www.famfamfam.com/lab/icons/silk\">Silk icons</a>\n"
                 L"    <a href=\"http://www.fatcow.com/free-icons\">Farm-fresh web icons</a>\n"
                 );
+
+            SendMessage(hwndDlg, WM_NEXTDLGCTL, (LPARAM)GetDlgItem(hwndDlg, IDOK), TRUE);
         }
         break;
     case WM_COMMAND:

@@ -21,16 +21,21 @@
  */
 
 #include <phapp.h>
+#include <procprp.h>
+#include <procprpp.h>
+
+#include <windowsx.h>
+
 #include <cpysave.h>
 #include <emenu.h>
-#include <procprv.h>
-#include <memprv.h>
-#include <memlist.h>
+
 #include <actions.h>
-#include <phplug.h>
 #include <extmgri.h>
-#include <windowsx.h>
-#include <procprpp.h>
+#include <mainwnd.h>
+#include <memlist.h>
+#include <memprv.h>
+#include <phplug.h>
+#include <procprv.h>
 
 static PH_STRINGREF EmptyMemoryText = PH_STRINGREF_INIT(L"There are no memory regions to display.");
 
@@ -316,9 +321,9 @@ INT_PTR CALLBACK PhpProcessMemoryDlgProc(
                     {
                         if (memoryNode->MemoryItem->State & MEM_COMMIT)
                         {
-                            PPH_SHOWMEMORYEDITOR showMemoryEditor = PhAllocate(sizeof(PH_SHOWMEMORYEDITOR));
+                            PPH_SHOW_MEMORY_EDITOR showMemoryEditor = PhAllocate(sizeof(PH_SHOW_MEMORY_EDITOR));
 
-                            memset(showMemoryEditor, 0, sizeof(PH_SHOWMEMORYEDITOR));
+                            memset(showMemoryEditor, 0, sizeof(PH_SHOW_MEMORY_EDITOR));
                             showMemoryEditor->ProcessId = processItem->ProcessId;
                             showMemoryEditor->BaseAddress = memoryNode->MemoryItem->BaseAddress;
                             showMemoryEditor->RegionSize = memoryNode->MemoryItem->RegionSize;
@@ -503,9 +508,9 @@ INT_PTR CALLBACK PhpProcessMemoryDlgProc(
 
                             if (memoryItem)
                             {
-                                PPH_SHOWMEMORYEDITOR showMemoryEditor = PhAllocate(sizeof(PH_SHOWMEMORYEDITOR));
+                                PPH_SHOW_MEMORY_EDITOR showMemoryEditor = PhAllocate(sizeof(PH_SHOW_MEMORY_EDITOR));
 
-                                memset(showMemoryEditor, 0, sizeof(PH_SHOWMEMORYEDITOR));
+                                memset(showMemoryEditor, 0, sizeof(PH_SHOW_MEMORY_EDITOR));
                                 showMemoryEditor->ProcessId = processItem->ProcessId;
                                 showMemoryEditor->BaseAddress = memoryItem->BaseAddress;
                                 showMemoryEditor->RegionSize = memoryItem->RegionSize;

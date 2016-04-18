@@ -21,9 +21,12 @@
  */
 
 #include <phapp.h>
-#include <procprv.h>
-#include <memsrch.h>
+
 #include <windowsx.h>
+
+#include <mainwnd.h>
+#include <memsrch.h>
+#include <procprv.h>
 
 #define WM_PH_MEMORY_STATUS_UPDATE (WM_APP + 301)
 
@@ -472,7 +475,7 @@ VOID PhShowMemoryStringDialog(
     NTSTATUS status;
     HANDLE processHandle;
     MEMORY_STRING_CONTEXT context;
-    PPH_SHOWMEMORYRESULTS showMemoryResults;
+    PPH_SHOW_MEMORY_RESULTS showMemoryResults;
 
     if (!NT_SUCCESS(status = PhOpenProcess(
         &processHandle,
@@ -510,7 +513,7 @@ VOID PhShowMemoryStringDialog(
         (LPARAM)&context
         ) == IDOK)
     {
-        showMemoryResults = PhAllocate(sizeof(PH_SHOWMEMORYRESULTS));
+        showMemoryResults = PhAllocate(sizeof(PH_SHOW_MEMORY_RESULTS));
         showMemoryResults->ProcessId = ProcessItem->ProcessId;
         showMemoryResults->Results = context.Results;
 

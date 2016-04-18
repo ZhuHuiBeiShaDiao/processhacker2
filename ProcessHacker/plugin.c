@@ -22,13 +22,16 @@
 
 #include <phapp.h>
 #include <phplug.h>
-#include <procprv.h>
-#include <settings.h>
+
 #include <emenu.h>
+
 #include <colmgr.h>
 #include <extmgri.h>
+#include <mainwnd.h>
 #include <notifico.h>
 #include <phsvccl.h>
+#include <procprv.h>
+#include <settings.h>
 
 typedef struct _PHP_PLUGIN_LOAD_ERROR
 {
@@ -647,7 +650,7 @@ ULONG_PTR PhPluginAddMenuItem(
     _In_opt_ PVOID Context
     )
 {
-    PH_ADDMENUITEM addMenuItem;
+    PH_ADD_MENU_ITEM addMenuItem;
 
     addMenuItem.Plugin = Plugin;
     addMenuItem.InsertAfter = InsertAfter;

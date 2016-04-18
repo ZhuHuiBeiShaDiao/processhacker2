@@ -22,6 +22,7 @@
  */
 
 #include "onlnchk.h"
+#include <commonutil.h>
 #include "json-c/json.h"
 
 static SERVICE_INFO UploadServiceInfo[] =
@@ -38,47 +39,6 @@ json_object_ptr json_get_object(json_object_ptr rootObj, const char* key)
     if (json_object_object_get_ex(rootObj, key, &returnObj))
     {
         return returnObj;
-    }
-
-    return NULL;
-}
-
-HFONT InitializeFont(
-    _In_ HWND hwnd
-    )
-{
-    LOGFONT logFont;
-
-    // Create the font handle
-    if (SystemParametersInfo(SPI_GETICONTITLELOGFONT, sizeof(LOGFONT), &logFont, 0))
-    {
-        HDC hdc;
-
-        if (hdc = GetDC(hwnd))
-        {
-            HFONT fontHandle = CreateFont(
-                -MulDiv(-14, GetDeviceCaps(hdc, LOGPIXELSY), 72),
-                0,
-                0,
-                0,
-                FW_MEDIUM,
-                FALSE,
-                FALSE,
-                FALSE,
-                ANSI_CHARSET,
-                OUT_DEFAULT_PRECIS,
-                CLIP_DEFAULT_PRECIS,
-                CLEARTYPE_QUALITY | ANTIALIASED_QUALITY,
-                DEFAULT_PITCH,
-                logFont.lfFaceName
-                );
-
-            SendMessage(hwnd, WM_SETFONT, (WPARAM)fontHandle, TRUE);
-
-            ReleaseDC(hwnd, hdc);
-
-            return fontHandle;
-        }
     }
 
     return NULL;
@@ -293,29 +253,20 @@ BOOLEAN PerformSubRequest(
 NTSTATUS HashFileAndResetPosition(
     _In_ HANDLE FileHandle,
     _In_ PLARGE_INTEGER FileSize,
-    _In_ ULONG Algorithm,
+    _In_ PH_HASH_ALGORITHM Algorithm,
     _Out_ PVOID Hash
     )
 {
     NTSTATUS status;
     IO_STATUS_BLOCK iosb;
     PH_HASH_CONTEXT hashContext;
-    sha256_context sha256;
     ULONG64 bytesRemaining;
     FILE_POSITION_INFORMATION positionInfo;
     UCHAR buffer[PAGE_SIZE];
 
     bytesRemaining = FileSize->QuadPart;
 
-    switch (Algorithm)
-    {
-    case HASH_SHA1:
-        PhInitializeHash(&hashContext, Sha1HashAlgorithm);
-        break;
-    case HASH_SHA256:
-        sha256_starts(&sha256);
-        break;
-    }
+    PhInitializeHash(&hashContext, Algorithm);
 
     while (bytesRemaining)
     {
@@ -334,16 +285,7 @@ NTSTATUS HashFileAndResetPosition(
         if (!NT_SUCCESS(status))
             break;
 
-        switch (Algorithm)
-        {
-        case HASH_SHA1:
-            PhUpdateHash(&hashContext, buffer, (ULONG)iosb.Information);
-            break;
-        case HASH_SHA256:
-            sha256_update(&sha256, (PUCHAR)buffer, (ULONG)iosb.Information);
-            break;
-        }
-
+        PhUpdateHash(&hashContext, buffer, (ULONG)iosb.Information);
         bytesRemaining -= (ULONG)iosb.Information;
     }
 
@@ -354,11 +296,14 @@ NTSTATUS HashFileAndResetPosition(
     {
         switch (Algorithm)
         {
-        case HASH_SHA1:
+        case Md5HashAlgorithm:
+            PhFinalHash(&hashContext, Hash, 16, NULL);
+            break;
+        case Sha1HashAlgorithm:
             PhFinalHash(&hashContext, Hash, 20, NULL);
             break;
-        case HASH_SHA256:
-            sha256_finish(&sha256, Hash);
+        case Sha256HashAlgorithm:
+            PhFinalHash(&hashContext, Hash, 32, NULL);
             break;
         }
 
@@ -945,7 +890,7 @@ NTSTATUS UploadCheckThreadStart(
                 UCHAR hash[32];
                 json_object_ptr rootJsonObject;
 
-                if (!NT_SUCCESS(status = HashFileAndResetPosition(fileHandle, &fileSize64, HASH_SHA256, hash)))
+                if (!NT_SUCCESS(status = HashFileAndResetPosition(fileHandle, &fileSize64, Sha256HashAlgorithm, hash)))
                 {
                     RaiseUploadError(context, L"Unable to hash the file", RtlNtStatusToDosError(status));
                     __leave;
@@ -1006,7 +951,7 @@ NTSTATUS UploadCheckThreadStart(
                 ULONG status = 0;
                 ULONG statusLength = sizeof(statusLength);
 
-                if (!NT_SUCCESS(status = HashFileAndResetPosition(fileHandle, &fileSize64, HASH_SHA256, hash)))
+                if (!NT_SUCCESS(status = HashFileAndResetPosition(fileHandle, &fileSize64, Sha256HashAlgorithm, hash)))
                 {
                     RaiseUploadError(context, L"Unable to hash the file", RtlNtStatusToDosError(status));
                     __leave;
@@ -1178,7 +1123,7 @@ INT_PTR CALLBACK UploadDlgProc(
             context->StatusHandle = GetDlgItem(hwndDlg, IDC_STATUS);
             context->ProgressHandle = GetDlgItem(hwndDlg, IDC_PROGRESS1);
             context->MessageHandle = GetDlgItem(hwndDlg, IDC_MESSAGE);
-            context->MessageFont = InitializeFont(context->MessageHandle);
+            context->MessageFont = CommonCreateFont(-14, context->MessageHandle);
             context->WindowFileName = PhFormatString(L"Uploading: %s", context->BaseFileName->Buffer);
             context->UploadServiceState = PhUploadServiceChecking;
 

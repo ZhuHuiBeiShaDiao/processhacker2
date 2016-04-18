@@ -22,10 +22,14 @@
 
 #include <phapp.h>
 #include <hndlmenu.h>
-#include <procprv.h>
-#include <kphuser.h>
+
 #include <emenu.h>
 #include <hndlinfo.h>
+#include <kphuser.h>
+
+#include <mainwnd.h>
+#include <procprp.h>
+#include <procprv.h>
 
 VOID PhInsertHandleObjectPropertiesEMenuItems(
     _In_ struct _PH_EMENU_ITEM *Menu,
@@ -262,12 +266,12 @@ VOID PhShowHandleObjectProperties1(
 
                 if (NT_SUCCESS(status))
                 {
-                    PPH_SHOWMEMORYEDITOR showMemoryEditor = PhAllocate(sizeof(PH_SHOWMEMORYEDITOR));
+                    PPH_SHOW_MEMORY_EDITOR showMemoryEditor = PhAllocate(sizeof(PH_SHOW_MEMORY_EDITOR));
 
                     if (tooBig)
                         PhShowWarning(hWnd, L"The section size is greater than 32 MB. Only the first 32 MB will be available for editing.");
 
-                    memset(showMemoryEditor, 0, sizeof(PH_SHOWMEMORYEDITOR));
+                    memset(showMemoryEditor, 0, sizeof(PH_SHOW_MEMORY_EDITOR));
                     showMemoryEditor->ProcessId = NtCurrentProcessId();
                     showMemoryEditor->BaseAddress = viewBase;
                     showMemoryEditor->RegionSize = viewSize;

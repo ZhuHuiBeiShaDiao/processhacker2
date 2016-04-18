@@ -21,10 +21,7 @@
  */
 
 #include <ph.h>
-#include <apiimport.h>
-#include <mapimg.h>
-#include <lsasup.h>
-#include <winsta.h>
+
 #include <commctrl.h>
 #include <commdlg.h>
 #include <shellapi.h>
@@ -33,8 +30,15 @@
 #include <shlobj.h>
 #undef CINTERFACE
 #undef COBJMACROS
+#include <winsta.h>
+
+#include <apiimport.h>
+#include <lsasup.h>
+#include <mapimg.h>
+
 #include "md5.h"
 #include "sha.h"
+#include "sha256.h"
 
 // We may want to change this for debugging purposes.
 #define PHP_USE_IFILEDIALOG (WINDOWS_HAS_IFILEDIALOG)
@@ -4328,6 +4332,7 @@ C_ASSERT(RTL_FIELD_SIZE(PH_HASH_CONTEXT, Context) >= sizeof(A_SHA_CTX));
  * \li \c Md5HashAlgorithm MD5 (128 bits)
  * \li \c Sha1HashAlgorithm SHA-1 (160 bits)
  * \li \c Crc32HashAlgorithm CRC-32-IEEE 802.3 (32 bits)
+ * \li \c Sha256HashAlgorithm SHA-256 (256 bits)
  */
 VOID PhInitializeHash(
     _Out_ PPH_HASH_CONTEXT Context,
@@ -4346,6 +4351,9 @@ VOID PhInitializeHash(
         break;
     case Crc32HashAlgorithm:
         Context->Context[0] = 0;
+        break;
+    case Sha256HashAlgorithm:
+        sha256_starts((sha256_context *)Context->Context);
         break;
     default:
         PhRaiseStatus(STATUS_INVALID_PARAMETER_2);
@@ -4376,6 +4384,9 @@ VOID PhUpdateHash(
         break;
     case Crc32HashAlgorithm:
         Context->Context[0] = PhCrc32(Context->Context[0], (PUCHAR)Buffer, Length);
+        break;
+    case Sha256HashAlgorithm:
+        sha256_update((sha256_context *)Context->Context, (PUCHAR)Buffer, Length);
         break;
     default:
         PhRaiseStatus(STATUS_INVALID_PARAMETER);
@@ -4433,6 +4444,16 @@ BOOLEAN PhFinalHash(
         }
 
         returnLength = 4;
+
+        break;
+    case Sha256HashAlgorithm:
+        if (HashLength >= 32)
+        {
+            sha256_finish((sha256_context *)Context->Context, (PUCHAR)Hash);
+            result = TRUE;
+        }
+
+        returnLength = 32;
 
         break;
     default:

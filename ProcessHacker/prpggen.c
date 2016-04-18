@@ -21,14 +21,19 @@
  */
 
 #include <phapp.h>
+#include <procprp.h>
+#include <procprpp.h>
+
+#include <windowsx.h>
+
 #include <secedit.h>
 #include <verify.h>
-#include <settings.h>
-#include <procprv.h>
+
 #include <actions.h>
+#include <mainwnd.h>
 #include <procmtgn.h>
-#include <windowsx.h>
-#include <procprpp.h>
+#include <procprv.h>
+#include <settings.h>
 
 static PWSTR ProtectedSignerStrings[] =
     { L"", L" (Authenticode)", L" (CodeGen)", L" (Antimalware)", L" (Lsa)", L" (Windows)", L" (WinTcb)" };

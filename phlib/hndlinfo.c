@@ -22,6 +22,7 @@
 
 #include <ph.h>
 #include <hndlinfo.h>
+
 #include <kphuser.h>
 #include <lsasup.h>
 
@@ -1563,7 +1564,8 @@ NTSTATUS PhpCallWithTimeout(
             PhpCallWithTimeoutThreadStart,
             ThreadContext,
             &ThreadContext->ThreadHandle,
-            &clientId)))
+            &clientId
+            )))
         {
             return status;
         }

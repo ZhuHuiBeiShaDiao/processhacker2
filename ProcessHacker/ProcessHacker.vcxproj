@@ -95,7 +95,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>noenv.obj;phlib.lib;ntdll.lib;winsta.lib;comctl32.lib;version.lib;uxtheme.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>phlib.lib;ntdll.lib;winsta.lib;comctl32.lib;version.lib;uxtheme.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
@@ -124,7 +124,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>noenv.obj;phlib.lib;ntdll.lib;winsta.lib;comctl32.lib;version.lib;uxtheme.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>phlib.lib;ntdll.lib;winsta.lib;comctl32.lib;version.lib;uxtheme.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX64</TargetMachine>
@@ -157,7 +157,7 @@
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>noenv.obj;phlib.lib;ntdll.lib;winsta.lib;comctl32.lib;version.lib;uxtheme.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>phlib.lib;ntdll.lib;winsta.lib;comctl32.lib;version.lib;uxtheme.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -192,7 +192,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>noenv.obj;phlib.lib;ntdll.lib;winsta.lib;comctl32.lib;version.lib;uxtheme.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>phlib.lib;ntdll.lib;winsta.lib;comctl32.lib;version.lib;uxtheme.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -250,6 +250,9 @@
     <ClCompile Include="modlist.c" />
     <ClCompile Include="modprv.c" />
     <ClCompile Include="mtgndlg.c" />
+    <ClCompile Include="mwpgnet.c" />
+    <ClCompile Include="mwpgproc.c" />
+    <ClCompile Include="mwpgsrv.c" />
     <ClCompile Include="netlist.c" />
     <ClCompile Include="netprv.c" />
     <ClCompile Include="netstk.c" />
@@ -336,6 +339,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\actions.h" />
+    <ClInclude Include="include\appsup.h" />
     <ClInclude Include="include\colmgr.h" />
     <ClInclude Include="include\extmgr.h" />
     <ClInclude Include="include\extmgri.h" />
@@ -343,6 +347,7 @@
     <ClInclude Include="include\hndllist.h" />
     <ClInclude Include="include\hndlmenu.h" />
     <ClInclude Include="include\hndlprv.h" />
+    <ClInclude Include="include\mainwnd.h" />
     <ClInclude Include="include\mainwndp.h" />
     <ClInclude Include="include\memlist.h" />
     <ClInclude Include="include\miniinfop.h" />
@@ -355,6 +360,7 @@
     <ClInclude Include="include\phfwddef.h" />
     <ClInclude Include="include\phsvccl.h" />
     <ClInclude Include="include\procmtgn.h" />
+    <ClInclude Include="include\procprp.h" />
     <ClInclude Include="include\procprv.h" />
     <ClInclude Include="include\proctree.h" />
     <ClInclude Include="include\srvlist.h" />

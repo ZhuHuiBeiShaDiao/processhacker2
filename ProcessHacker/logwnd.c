@@ -21,7 +21,10 @@
  */
 
 #include <phapp.h>
+
 #include <windowsx.h>
+
+#include <mainwnd.h>
 
 #define WM_PH_LOG_UPDATED (WM_APP + 300)
 

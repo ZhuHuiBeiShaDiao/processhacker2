@@ -21,23 +21,27 @@
  */
 
 #include <phapp.h>
-#include <procprv.h>
-#include <srvprv.h>
-#include <netprv.h>
-#include <modprv.h>
-#include <thrdprv.h>
-#include <hndlprv.h>
-#include <memprv.h>
+
+#include <shlobj.h>
+
+#include <colorbox.h>
+#include <hexedit.h>
+#include <hndlinfo.h>
 #include <kphuser.h>
 #include <lsasup.h>
-#include <hndlinfo.h>
+
+#include <extmgri.h>
+#include <hndlprv.h>
+#include <mainwnd.h>
+#include <memprv.h>
+#include <modprv.h>
+#include <netprv.h>
 #include <phsvc.h>
+#include <procprp.h>
 #include <procprv.h>
 #include <settings.h>
-#include <extmgri.h>
-#include <hexedit.h>
-#include <colorbox.h>
-#include <shlobj.h>
+#include <srvprv.h>
+#include <thrdprv.h>
 
 LONG PhMainMessageLoop(
     VOID
@@ -454,43 +458,27 @@ VOID PhInitializeCommonControls(
 }
 
 HFONT PhpCreateFont(
-    _In_ HWND hWnd,
     _In_ PWSTR Name,
     _In_ ULONG Size,
     _In_ ULONG Weight
     )
 {
-    HFONT font;
-    HDC hdc;
-
-    hdc = GetDC(hWnd);
-
-    if (hdc)
-    {
-        font = CreateFont(
-            -(LONG)PhMultiplyDivide(Size, PhGlobalDpi, 72),
-            0,
-            0,
-            0,
-            Weight,
-            FALSE,
-            FALSE,
-            FALSE,
-            ANSI_CHARSET,
-            OUT_DEFAULT_PRECIS,
-            CLIP_DEFAULT_PRECIS,
-            DEFAULT_QUALITY,
-            DEFAULT_PITCH,
-            Name
-            );
-        ReleaseDC(hWnd, hdc);
-
-        return font;
-    }
-    else
-    {
-        return NULL;
-    }
+    return CreateFont(
+        -(LONG)PhMultiplyDivide(Size, PhGlobalDpi, 72),
+        0,
+        0,
+        0,
+        Weight,
+        FALSE,
+        FALSE,
+        FALSE,
+        ANSI_CHARSET,
+        OUT_DEFAULT_PRECIS,
+        CLIP_DEFAULT_PRECIS,
+        DEFAULT_QUALITY,
+        DEFAULT_PITCH,
+        Name
+        );
 }
 
 VOID PhInitializeFont(
@@ -514,8 +502,8 @@ VOID PhInitializeFont(
     success = !!SystemParametersInfo(SPI_GETNONCLIENTMETRICS, 0, &metrics, 0);
 
     if (
-        !(PhApplicationFont = PhpCreateFont(hWnd, L"Microsoft Sans Serif", 8, FW_NORMAL)) &&
-        !(PhApplicationFont = PhpCreateFont(hWnd, L"Tahoma", 8, FW_NORMAL))
+        !(PhApplicationFont = PhpCreateFont(L"Microsoft Sans Serif", 8, FW_NORMAL)) &&
+        !(PhApplicationFont = PhpCreateFont(L"Tahoma", 8, FW_NORMAL))
         )
     {
         if (success)

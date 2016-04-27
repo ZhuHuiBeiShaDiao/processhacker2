@@ -343,8 +343,7 @@ BOOLEAN ReadRequestString(
 }
 
 BOOLEAN QueryUpdateData(
-    _Inout_ PPH_UPDATER_CONTEXT Context,
-    _In_ BOOLEAN UseFailServer
+    _Inout_ PPH_UPDATER_CONTEXT Context
     )
 {
     BOOLEAN isSuccess = FALSE;
@@ -396,55 +395,33 @@ BOOLEAN QueryUpdateData(
                 );
         }
 
-        if (UseFailServer)
+        if (!(httpConnectionHandle = WinHttpConnect(
+            httpSessionHandle,
+            L"wj32.org",
+            INTERNET_DEFAULT_HTTPS_PORT,
+            0
+            )))
         {
-            if (!(httpConnectionHandle = WinHttpConnect(
-                httpSessionHandle,
-                L"processhacker.sourceforge.net",
-                INTERNET_DEFAULT_HTTP_PORT,
-                0
-                )))
-            {
-                __leave;
-            }
-
-            if (!(httpRequestHandle = WinHttpOpenRequest(
-                httpConnectionHandle,
-                NULL,
-                L"/update.php",
-                NULL,
-                WINHTTP_NO_REFERER,
-                WINHTTP_DEFAULT_ACCEPT_TYPES,
-                WINHTTP_FLAG_REFRESH
-                )))
-            {
-                __leave;
-            }
+            __leave;
         }
-        else
-        {
-            if (!(httpConnectionHandle = WinHttpConnect(
-                httpSessionHandle,
-                L"wj32.org",
-                INTERNET_DEFAULT_HTTPS_PORT,
-                0
-                )))
-            {
-                __leave;
-            }
 
-            if (!(httpRequestHandle = WinHttpOpenRequest(
-                httpConnectionHandle,
-                NULL,
-                L"/processhacker/update.php",
-                NULL,
-                WINHTTP_NO_REFERER,
-                WINHTTP_DEFAULT_ACCEPT_TYPES,
-                WINHTTP_FLAG_REFRESH | WINHTTP_FLAG_SECURE
-                )))
-            {
-                __leave;
-            }
+        if (!(httpRequestHandle = WinHttpOpenRequest(
+            httpConnectionHandle,
+            NULL,
+            L"/processhacker/update.php",
+            NULL,
+            WINHTTP_NO_REFERER,
+            WINHTTP_DEFAULT_ACCEPT_TYPES,
+            WINHTTP_FLAG_REFRESH | WINHTTP_FLAG_SECURE
+            )))
+        {
+            __leave;
+        }
+
+        if (WindowsVersion >= WINDOWS_7)
+        {
+            ULONG keepAlive = WINHTTP_DISABLE_KEEP_ALIVE;
+            WinHttpSetOption(httpRequestHandle, WINHTTP_OPTION_DISABLE_FEATURE, &keepAlive, sizeof(ULONG));
         }
 
         if (versionHeader)
@@ -586,22 +563,20 @@ NTSTATUS UpdateCheckSilentThread(
 
     __try
     {
+#ifdef FORCE_NO_INTERNET
+        __leave;
+#endif
         if (!LastUpdateCheckExpired())
         {
             __leave;
         }
-#ifndef FORCE_NO_INTERNET
-        if (!QueryUpdateData(context, FALSE))
+
+        if (!QueryUpdateData(context))
         {
-            if (!QueryUpdateData(context, TRUE))
-            {
-                __leave;
-            }
+            __leave;
         }
-#else
-        __leave;
-#endif
-        currentVersion = MAKEDLLVERULL(
+
+        currentVersion = MAKE_VERSION_ULONGLONG(
             context->CurrentMajorVersion,
             context->CurrentMinorVersion,
             context->CurrentRevisionVersion,
@@ -610,14 +585,14 @@ NTSTATUS UpdateCheckSilentThread(
 
 #ifdef FORCE_UPDATE_CHECK
 #ifdef FORCE_LATEST_VERSION
-        latestVersion = MAKEDLLVERULL(
+        latestVersion = MAKE_VERSION_ULONGLONG(
             context->CurrentMajorVersion,
             context->CurrentMinorVersion,
             context->CurrentRevisionVersion,
             0
             );
 #else
-        latestVersion = MAKEDLLVERULL(
+        latestVersion = MAKE_VERSION_ULONGLONG(
             9999,
             9999,
             9999,
@@ -625,7 +600,7 @@ NTSTATUS UpdateCheckSilentThread(
             );
 #endif
 #else
-        latestVersion = MAKEDLLVERULL(
+        latestVersion = MAKE_VERSION_ULONGLONG(
             context->MajorVersion,
             context->MinorVersion,
             context->RevisionVersion,
@@ -672,29 +647,24 @@ NTSTATUS UpdateCheckThread(
 
     context = (PPH_UPDATER_CONTEXT)Parameter;
 
+#ifdef FORCE_NO_INTERNET
+    PostMessage(context->DialogHandle, PH_UPDATEISERRORED, 0, 0);
+    return STATUS_SUCCESS;
+#endif
+
     // Check if we have cached update data
     if (!context->HaveData)
     {
-        context->HaveData = QueryUpdateData(context, FALSE);
-
-        if (!context->HaveData)
-        {
-            context->HaveData = QueryUpdateData(context, TRUE);
-        }
+        context->HaveData = QueryUpdateData(context);
     }
 
-#ifndef FORCE_NO_INTERNET
     if (!context->HaveData) // sanity check
     {
         PostMessage(context->DialogHandle, PH_UPDATEISERRORED, 0, 0);
         return STATUS_SUCCESS;
     }
-#else
-    PostMessage(context->DialogHandle, PH_UPDATEISERRORED, 0, 0);
-    return STATUS_SUCCESS;
-#endif
 
-    currentVersion = MAKEDLLVERULL(
+    currentVersion = MAKE_VERSION_ULONGLONG(
         context->CurrentMajorVersion,
         context->CurrentMinorVersion,
         context->CurrentRevisionVersion,
@@ -703,14 +673,14 @@ NTSTATUS UpdateCheckThread(
 
 #ifdef FORCE_UPDATE_CHECK
 #ifdef FORCE_LATEST_VERSION
-    latestVersion = MAKEDLLVERULL(
+    latestVersion = MAKE_VERSION_ULONGLONG(
         context->CurrentMajorVersion,
         context->CurrentMinorVersion,
         context->CurrentRevisionVersion,
         0
         );
 #else
-    latestVersion = MAKEDLLVERULL(
+    latestVersion = MAKE_VERSION_ULONGLONG(
         9999,
         9999,
         9999,
@@ -718,7 +688,7 @@ NTSTATUS UpdateCheckThread(
         );
 #endif
 #else
-    latestVersion = MAKEDLLVERULL(
+    latestVersion = MAKE_VERSION_ULONGLONG(
         context->MajorVersion,
         context->MinorVersion,
         context->RevisionVersion,
@@ -933,6 +903,12 @@ NTSTATUS UpdateDownloadThread(
             )))
         {
             __leave;
+        }
+
+        if (WindowsVersion >= WINDOWS_7)
+        {
+            ULONG keepAlive = WINHTTP_DISABLE_KEEP_ALIVE;
+            WinHttpSetOption(httpRequestHandle, WINHTTP_OPTION_DISABLE_FEATURE, &keepAlive, sizeof(ULONG));
         }
 
         SendMessage(context->DialogHandle, TDM_UPDATE_ELEMENT_TEXT, TDE_MAIN_INSTRUCTION, (LPARAM)L"Sending download request...");
